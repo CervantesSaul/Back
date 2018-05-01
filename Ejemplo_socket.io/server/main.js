@@ -43,7 +43,7 @@ io.on('connection',function(socket){
 		//socket.room = nombreSala;
 		socket.room = nombreSala;
 		var len = 0;
-
+		
 		for( var i=0; i<rooms.length;i++ ){
 			if(rooms[i].nombreSala == nombreSala){
 				salaExiste = true;
@@ -152,15 +152,35 @@ io.on('connection',function(socket){
 	});
 
 	socket.on('prueba',function(pay){
-		var idSala = Sala(socket.room); 
-		var number = Math.floor(Math.random() * 54) + 1;
+		var idSala = Sala(socket.room);
+		var number = randomGenerate(idSala);
 		//var lon = socket.room.numerosBaraja.length;
 		rooms[idSala].numerosBaraja.push(number);
 		//socket.emit('prueba',{prueba:number});
-		pay.text = number;
+		pay.text = rooms[idSala].numerosBaraja.length+" " + number;
 		io.sockets.in(rooms[idSala].nombreSala).emit('messages',pay);
 		//setInterval(intervalFunc(pay), 1500);
 	});
+
+	function randomGenerate(idSala){
+		var randomizar = true;
+		if(rooms[idSala].numerosBaraja.length>0){
+			while(randomizar){
+				var number = Math.floor(Math.random() * 54) + 1;
+				for(var i=0;i<rooms[idSala].numerosBaraja.length;i++){
+					if(rooms[idSala].numerosBaraja[i]==number){
+						randomizar = true;
+						break;
+					}else{
+						randomizar=false;
+					}
+				}
+			}
+		}else{
+			var number = Math.floor(Math.random() * 54) + 1;
+		}
+		return number;
+	}
 
 	function Sala(nombreSala){
 		for(var i=0; i<rooms.length;i++){
