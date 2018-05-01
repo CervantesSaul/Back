@@ -153,6 +153,10 @@ io.on('connection',function(socket){
 
 	socket.on('prueba',function(pay){
 		var idSala = Sala(socket.room);
+		setInterval(intervalFunc,1500,pay,idSala);
+	});
+
+	function intervalFunc(pay,idSala){
 		if(rooms[idSala].numerosBaraja.length <= 54){
 			var number = randomGenerate(idSala);
 			//var lon = socket.room.numerosBaraja.length;
@@ -164,7 +168,7 @@ io.on('connection',function(socket){
 			io.sockets.in(rooms[idSala].nombreSala).emit('messages',pay);
 			//setInterval(intervalFunc(pay), 1500);
 		}
-	});
+	}
 
 	function randomGenerate(idSala){
 		var randomizar = true;
@@ -196,14 +200,6 @@ io.on('connection',function(socket){
 				return i;
 			}
 		}
-	}
-
-	function intervalFunc(pay) {
-		var number = Math.floor(Math.random() * 54) + 1;
-		//socket.room.numerosBaraja.push(number);
-		//socket.emit('prueba',{prueba:number});
-		io.sockets.in(socket.room).emit('messages',pay);
-		console.log('Cant stop me now!');
 	}
 	  
 
