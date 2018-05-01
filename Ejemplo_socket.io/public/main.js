@@ -70,7 +70,10 @@ function addMessage(e){
 	return false;
 }
 
-//var socket2 = io();
-      socket.on('connectToRoom',function(data) {
-         console.log(data);
-      });
+socket.on('connectToRoom',function(data) {
+    console.log(data);
+});
+
+socket.on('numerosBaraja',function(numeroBaraja) {
+	console.log(numeroBaraja);
+});

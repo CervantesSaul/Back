@@ -9,10 +9,10 @@ var io = require('socket.io')(server);
 
 var rooms = [];
 
-var room = [{
+/*var room = [{
 	nombreSala: "",
 	numerosBaraja: []
-}];
+}];*/
 
 //PARA EJEMPLO UN ARRAY DE MENSAJES AQUI VA LA DB
 /*var messages=[{
@@ -57,9 +57,9 @@ io.on('connection',function(socket){
 		if(salaExiste){
 			
 		}else{
-			var rom = room;
+			/*var rom = room;
 			rom.nombreSala = nombreSala;
-			rom.numerosBaraja = new Array();
+			rom.numerosBaraja = new Array();*/
 
 			rooms.push({nombreSala:nombreSala, numerosBaraja: []});
 			len = rooms.length;
@@ -159,14 +159,14 @@ io.on('connection',function(socket){
 	function intervalFunc(pay,idSala){
 		if(rooms[idSala].numerosBaraja.length <= 54){
 			var number = randomGenerate(idSala);
-			//var lon = socket.room.numerosBaraja.length;
-			
-				rooms[idSala].numerosBaraja.push(number);
-			
-			//socket.emit('prueba',{prueba:number});
-			pay.text = rooms[idSala].numerosBaraja.length+" " + number;
-			io.sockets.in(rooms[idSala].nombreSala).emit('messages',pay);
+			rooms[idSala].numerosBaraja.push(number);
+			pay.text = number;
+			io.sockets.in(rooms[idSala].nombreSala).emit('numerosBaraja',number);
 			//setInterval(intervalFunc(pay), 1500);
+		}else
+		{
+			//PARA PARAR EL INTERVALO
+			clearInterval();
 		}
 	}
 
