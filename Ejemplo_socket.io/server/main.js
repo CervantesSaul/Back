@@ -7,6 +7,12 @@ var app = require('../app');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var rooms = new Array();
+
+var room = [{
+	nombreSala: "",
+	numerosBaraja: []
+}];
 
 //PARA EJEMPLO UN ARRAY DE MENSAJES AQUI VA LA DB
 /*var messages=[{
@@ -17,38 +23,65 @@ var io = require('socket.io')(server);
 
 app.use(express.static('public'));
 
+
 io.on('connection',function(socket){
 	console.log('todo va bien');
 
 	socket.on('new-message',function(data){
 		//AVISAR A TODOS LOS SOCKETS QUE HAY UN NUEVO MENSAJE
 		//io.sockets.emit('messages',messages);
-		io.sockets.in(socket.room.nombreSala).emit('messages', data);
+		io.sockets.in(socket.room).emit('messages', data);
 	});
 	
 	//CONFIGURACION DE LAS SALAS
    	//Cuando el cliente emita 'adduser', escucha y ejecuta
 	socket.on('adduser', function(username, nombreSala){
+		var salaExiste = false;
 		//Guarda username en la sesion del socket para cada cliente
 		socket.username = username;
 		//guarda el nombre de la sala en la sesion del socket para cada cliente
 		//socket.room = nombreSala;
-		socket.room = [
-			{
-				nombreSala: "",
-				numerosBaraja: []
-			}
-		];
+		socket.room = nombreSala;
+		var len = 0;
 
-		socket.room.nombreSala = nombreSala;
+		for( var i=0; i<rooms.length;i++ ){
+			if(rooms[i].nombreSala == nombreSala){
+				salaExiste = true;
+				var len = i+1;
+				break;
+			}else{
+				salaExiste =false;
+			}
+		}
+		console.log('longitud de salas:'+rooms.length);
+
+		for(var j=0;j<rooms.length;j++){
+			console.log(rooms[j].nombreSala);
+		}
+		if(salaExiste){
+			
+		}else{
+			var rom = room;
+			rom.nombreSala = nombreSala;
+			rom.numerosBaraja = new Array();
+
+			rooms.push(rom);
+			len = rooms.length;
+		}
+		console.log('longitud de salas:'+rooms.length);
+
+		for(var j=0;j<rooms.length;j++){
+			console.log(rooms[j].nombreSala);
+		}
 
 		// Unir al cliente a la sala
-		socket.join(socket.room.nombreSala);
+		socket.join(rooms[len-1].nombreSala);
 		// Mandar mensaje cuando se conecte al usuario
-		socket.emit('messages', {autor:'Loteria',text:'Bienvenido a la sala ' + this.room.nombreSala});
+		socket.emit('messages', {autor:'Loteria',text:'Bienvenido a la sala ' + rooms[len-1].nombreSala});
 		//Mandar mensaje a todas las personas de la sala excepto al usuario actual
-		socket.broadcast.to(this.room.nombreSala).emit('messages',{autor:'Loteria',text: username +' se ha unido a la sala'});
+		socket.broadcast.to(rooms[len-1].nombreSala).emit('messages',{autor:'Loteria',text: username +' se ha unido a la sala'});
 	});
+
 
 	socket.on('verificarLlenas',function(data,vectores,cartasDestapadas){
 		var centro = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
@@ -77,14 +110,14 @@ io.on('connection',function(socket){
 				data.verificar = true;
 				data.text = "El "+ data.autor +" hizo centro";
 				data.autor = "Loteria";
-				io.sockets.in(socket.room.nombreSala).emit('messages',data);
+				io.sockets.in(socket.room).emit('messages',data);
 				break;
 			}
 		}
 		if(data.verificar != true){
 			data.text = "El "+ data.autor +" la cago";
 			data.autor = "Loteria";
-			io.sockets.in(socket.room.nombreSala).emit('messages',data);
+			io.sockets.in(socket.room).emit('messages',data);
 		}
 	});
 
@@ -115,26 +148,48 @@ io.on('connection',function(socket){
 				data.verificar = true;
 				data.text = "El "+ data.autor +" hizo centro";
 				data.autor = "Loteria";
-				io.sockets.in(socket.room.nombreSala).emit('messages',data);
+				io.sockets.in(socket.room).emit('messages',data);
 				break;
 			}
 		}
 		if(data.verificar != true){
 			data.text = "El "+ data.autor +" la cago";
 			data.autor = "Loteria";
-			io.sockets.in(socket.room.nombreSala).emit('messages',data);
+			io.sockets.in(socket.room).emit('messages',data);
 		}
 	});
 
 	socket.on('prueba',function(pay){
-		setInterval(intervalFunc(pay), 1500);
+		var idSala = Sala(socket.room); 
+		console.log('id sala: '+idSala);
+		var number = Math.floor(Math.random() * 54) + 1;
+		//var lon = socket.room.numerosBaraja.length;
+		rooms[idSala].numerosBaraja.push(number);
+		//socket.emit('prueba',{prueba:number});
+		for(var i=0; i<rooms[idSala].numerosBaraja.length;i++){
+			
+			console.log(rooms[idSala].numerosBaraja[i]);
+		}
+		pay.text = number;
+		io.sockets.in(rooms[idSala].nombreSala).emit('messages',pay);
+		//setInterval(intervalFunc(pay), 1500);
 	});
+
+	function Sala(nombreSala){
+		console.log('longitud de salas:'+rooms.length);
+		for(var i=0; i<rooms.length;i++){
+			console.log(rooms[i].nombreSala + " "+nombreSala);
+			if(rooms[i].nombreSala==nombreSala){
+				return i;
+			}
+		}
+	}
 
 	function intervalFunc(pay) {
 		var number = Math.floor(Math.random() * 54) + 1;
 		//socket.room.numerosBaraja.push(number);
 		//socket.emit('prueba',{prueba:number});
-		io.sockets.in(socket.room.nombreSala).emit('messages',pay);
+		io.sockets.in(socket.room).emit('messages',pay);
 		console.log('Cant stop me now!');
 	}
 	  
@@ -166,14 +221,14 @@ io.on('connection',function(socket){
 				data.verificar = true;
 				data.text = "El "+ data.autor +" hizo esquinas";
 				data.autor = "Loteria";
-				io.sockets.in(socket.room.nombreSala).emit('messages',data);
+				io.sockets.in(socket.room).emit('messages',data);
 				break;
 			}
 		}
 		if(data.verificar != true){
 			data.text = "El "+ data.autor +" la cago";
 			data.autor = "Loteria";
-			io.sockets.in(socket.room.nombreSala).emit('messages',data);
+			io.sockets.in(socket.room).emit('messages',data);
 		}
 	});
 
