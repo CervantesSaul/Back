@@ -53,11 +53,7 @@ io.on('connection',function(socket){
 				salaExiste =false;
 			}
 		}
-		console.log('longitud de salas:'+rooms.length);
-
-		for(var j=0;j<rooms.length;j++){
-			console.log(rooms[j].nombreSala);
-		}
+		
 		if(salaExiste){
 			
 		}else{
@@ -68,11 +64,7 @@ io.on('connection',function(socket){
 			rooms.push({nombreSala:nombreSala, numerosBaraja: []});
 			len = rooms.length;
 		}
-		console.log('longitud de salas:'+rooms.length);
-
-		for(var j=0;j<rooms.length;j++){
-			console.log(rooms[j].nombreSala);
-		}
+		
 
 		// Unir al cliente a la sala
 		socket.join(rooms[len-1].nombreSala);
@@ -161,24 +153,17 @@ io.on('connection',function(socket){
 
 	socket.on('prueba',function(pay){
 		var idSala = Sala(socket.room); 
-		console.log('id sala: '+idSala);
 		var number = Math.floor(Math.random() * 54) + 1;
 		//var lon = socket.room.numerosBaraja.length;
 		rooms[idSala].numerosBaraja.push(number);
 		//socket.emit('prueba',{prueba:number});
-		for(var i=0; i<rooms[idSala].numerosBaraja.length;i++){
-			
-			console.log(rooms[idSala].numerosBaraja[i]);
-		}
 		pay.text = number;
 		io.sockets.in(rooms[idSala].nombreSala).emit('messages',pay);
 		//setInterval(intervalFunc(pay), 1500);
 	});
 
 	function Sala(nombreSala){
-		console.log('longitud de salas:'+rooms.length);
 		for(var i=0; i<rooms.length;i++){
-			console.log(rooms[i].nombreSala + " "+nombreSala);
 			if(rooms[i].nombreSala==nombreSala){
 				return i;
 			}
