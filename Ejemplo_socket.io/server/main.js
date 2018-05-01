@@ -153,33 +153,41 @@ io.on('connection',function(socket){
 
 	socket.on('prueba',function(pay){
 		var idSala = Sala(socket.room);
-		var number = randomGenerate(idSala);
-		//var lon = socket.room.numerosBaraja.length;
-		rooms[idSala].numerosBaraja.push(number);
-		//socket.emit('prueba',{prueba:number});
-		pay.text = rooms[idSala].numerosBaraja.length+" " + number;
-		io.sockets.in(rooms[idSala].nombreSala).emit('messages',pay);
-		//setInterval(intervalFunc(pay), 1500);
+		if(rooms[idSala].numerosBaraja.length <= 54){
+			var number = randomGenerate(idSala);
+			//var lon = socket.room.numerosBaraja.length;
+			
+				rooms[idSala].numerosBaraja.push(number);
+			
+			//socket.emit('prueba',{prueba:number});
+			pay.text = rooms[idSala].numerosBaraja.length+" " + number;
+			io.sockets.in(rooms[idSala].nombreSala).emit('messages',pay);
+			//setInterval(intervalFunc(pay), 1500);
+		}
 	});
 
 	function randomGenerate(idSala){
 		var randomizar = true;
-		if(rooms[idSala].numerosBaraja.length>0){
-			while(randomizar){
-				var number = Math.floor(Math.random() * 54) + 1;
-				for(var i=0;i<rooms[idSala].numerosBaraja.length;i++){
-					if(rooms[idSala].numerosBaraja[i]==number){
-						randomizar = true;
-						break;
-					}else{
-						randomizar=false;
+		if(rooms[idSala].numerosBaraja.length <= 54){
+
+		
+			if(rooms[idSala].numerosBaraja.length>0){
+				while(randomizar){
+					var number = Math.floor(Math.random() * 54) + 1;
+					for(var i=0;i<rooms[idSala].numerosBaraja.length;i++){
+						if(rooms[idSala].numerosBaraja[i]==number){
+							randomizar = true;
+							break;
+						}else{
+							randomizar=false;
+						}
 					}
 				}
+			}else{
+				var number = Math.floor(Math.random() * 54) + 1;
 			}
-		}else{
-			var number = Math.floor(Math.random() * 54) + 1;
+			return number;
 		}
-		return number;
 	}
 
 	function Sala(nombreSala){
