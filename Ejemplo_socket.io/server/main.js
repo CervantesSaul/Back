@@ -7,7 +7,7 @@ var app = require('../app');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
-var rooms = new Array();
+var rooms = [];
 
 var room = [{
 	nombreSala: "",
@@ -65,7 +65,7 @@ io.on('connection',function(socket){
 			rom.nombreSala = nombreSala;
 			rom.numerosBaraja = new Array();
 
-			rooms.push(rom);
+			rooms.push({nombreSala:nombreSala, numerosBaraja: []});
 			len = rooms.length;
 		}
 		console.log('longitud de salas:'+rooms.length);
