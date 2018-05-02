@@ -103,7 +103,7 @@ io.on('connection',function(socket){
 				
 			}
 			if(bandera){
-				jugada.push({userName:data.autor,jugada:"Llenas",valido:false});
+				jugada.push({userName:data.autor,jugada:"Llenas",valido:true});
 				io.sockets.in(socket.room).emit('jugada',jugada);
 				break;
 			}
@@ -142,13 +142,13 @@ io.on('connection',function(socket){
 			}
 			if(bandera){
 				jugada.push({userName:data.autor,jugada:"Centro",valido:true});
-				io.sockets.in(socket.room).emit('jugada',jugada[0]);
+				io.sockets.in(socket.room).emit('jugada',jugada);
 				break;
 			}
 		}
 		if(bandera != true){
-			jugada.push({userName:data.autor,jugada:"Centro",valido:false});
-			io.sockets.in(socket.room).emit('jugada',jugada[0]);
+			jugada.push({userName:data.autor,jugada:"Centro",valido:true});
+			io.sockets.in(socket.room).emit('jugada',jugada);
 		}
 	});
 
@@ -278,7 +278,7 @@ io.on('connection',function(socket){
 				
 			}
 			if(bandera){
-				jugada.push({userName:data.autor,jugada:"Chorro",valido:false});
+				jugada.push({userName:data.autor,jugada:"Chorro",valido:true});
 				io.sockets.in(socket.room).emit('jugada',jugada);
 				break;
 			}

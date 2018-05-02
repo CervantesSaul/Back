@@ -95,7 +95,7 @@ function validarLlenas(){
 
 	//cartas arrojadas por el servidor
 	var cartasDestapadas = [1,2,3,4,5,6,7,8,9,10] ;
-	socket.emit('verificarCentro',payload,chorro, cartasDestapadas);
+	socket.emit('verificarLlenas',payload,chorro, cartasDestapadas);
 }
 
 function render(data){
