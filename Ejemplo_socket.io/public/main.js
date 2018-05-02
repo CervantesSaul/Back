@@ -29,11 +29,17 @@ function validarChorro(){
 	};
 
 	//arreglos de combinaciones posibles para chorro
-	chorro[0] = [1,2,3,31];
-	chorro[1] = [1,2,3,10];
-	chorro[2] = [1,2,3,30];
-	chorro[3] = [1,2,3,11];
-	chorro[4] = [1,2,3,9];
+	chorro[0] = [6,7,8,9];
+	chorro[1] = [15,16,17,18];
+	chorro[2] = [24,25,26,27];
+	chorro[3] = [33,34,35,36];
+	chorro[4] = [6,15,24,33];
+	chorro[5] = [7,16,25,34];
+	chorro[6] = [8,17,26,35];
+	chorro[7] = [9,18,27,36];
+	chorro[8] = [6,16,26,36];
+	chorro[9] = [33,25,17,9];
+
 
 	//cartas arrojadas por el servidor
 	var cartasDestapadas = [1,2,3,4,5,6,7,8,9,10] ;
@@ -50,7 +56,42 @@ function validarCentro(){
 	};
 
 	//arreglos de combinaciones posibles para chorro
-	var chorro = [1,2,3,10];
+	var chorro = [11,12,20,21];
+
+	//cartas arrojadas por el servidor
+	var cartasDestapadas = [1,2,3,4,5,6,7,8,9,10] ;
+	socket.emit('verificarCentro',payload,chorro, cartasDestapadas);
+}
+
+
+function validarEsquinas(){
+	//var chorro = new Array();
+
+	var payload={
+		autor:document.getElementById('username').value,
+		text:document.getElementById('texto').value,
+		verificar: false
+	};
+
+	//arreglos de combinaciones posibles para chorro
+	var chorro = [6,9,28,31];
+
+	//cartas arrojadas por el servidor
+	var cartasDestapadas = [1,2,3,4,5,6,7,8,9,10] ;
+	socket.emit('verificarEsquinas',payload,chorro, cartasDestapadas);
+}
+
+function validarLlenas(){
+	//var chorro = new Array();
+
+	var payload={
+		autor:document.getElementById('username').value,
+		text:document.getElementById('texto').value,
+		verificar: false
+	};
+
+	//arreglos de combinaciones posibles para chorro
+	var chorro = [6,7,8,9,15,16,17,18,24,25,26,27,33,34,35,36];
 
 	//cartas arrojadas por el servidor
 	var cartasDestapadas = [1,2,3,4,5,6,7,8,9,10] ;
@@ -76,4 +117,12 @@ socket.on('connectToRoom',function(data) {
 
 socket.on('numerosBaraja',function(numeroBaraja) {
 	console.log(numeroBaraja);
+});
+
+socket.on('jugada',function(data) {
+	console.log(data);
+});
+
+socket.on('GameOver',function(data) {
+	console.log(data);
 });

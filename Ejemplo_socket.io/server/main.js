@@ -61,7 +61,7 @@ io.on('connection',function(socket){
 			rom.nombreSala = nombreSala;
 			rom.numerosBaraja = new Array();*/
 
-			rooms.push({nombreSala:nombreSala, numerosBaraja: []});
+			rooms.push({nombreSala:nombreSala, numerosBaraja: [],inter:null});
 			len = rooms.length;
 		}
 		
@@ -76,11 +76,15 @@ io.on('connection',function(socket){
 
 
 	socket.on('verificarLlenas',function(data,vectores,cartasDestapadas){
+
+		var idSala = Sala(socket.room);
+		var jugada = [];
+
 		var centro = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
 		var bandera = false;
 		for (var i=0; i<vectores.length;i++) {
-			for(var j=0;j<cartasDestapadas.length;j++){
-				if(vectores[i] == cartasDestapadas[j]){
+			for(var j=0;j<rooms[idSala].numerosBaraja.length;j++){
+				if(vectores[i] == rooms[idSala].numerosBaraja[j]){
 					centro[i] = true;
 					//console.log(vectores[i] + " "+ cartasDestapadas[j]);
 					break;
@@ -99,26 +103,26 @@ io.on('connection',function(socket){
 				
 			}
 			if(bandera){
-				data.verificar = true;
-				data.text = "El "+ data.autor +" hizo centro";
-				data.autor = "Loteria";
-				io.sockets.in(socket.room).emit('messages',data);
+				jugada.push({userName:data.autor,jugada:"Llenas",valido:false});
+				io.sockets.in(socket.room).emit('jugada',jugada);
 				break;
 			}
 		}
-		if(data.verificar != true){
-			data.text = "El "+ data.autor +" la cago";
-			data.autor = "Loteria";
-			io.sockets.in(socket.room).emit('messages',data);
+		if(bandera != true){
+			jugada.push({userName:data.autor,jugada:"Llenas",valido:false});
+			io.sockets.in(socket.room).emit('jugada',jugada);
 		}
 	});
 
 	socket.on('verificarCentro',function(data,vectores,cartasDestapadas){
+		var idSala = Sala(socket.room);
+		var jugada = [];
+
 		var centro = [false,false,false,false];
 		var bandera = false;
 		for (var i=0; i<vectores.length;i++) {
-			for(var j=0;j<cartasDestapadas.length;j++){
-				if(vectores[i] == cartasDestapadas[j]){
+			for(var j=0;j<rooms[idSala].numerosBaraja.length;j++){
+				if(vectores[i] == rooms[idSala].numerosBaraja[j]){
 					centro[i] = true;
 					//console.log(vectores[i] + " "+ cartasDestapadas[j]);
 					break;
@@ -137,27 +141,25 @@ io.on('connection',function(socket){
 				
 			}
 			if(bandera){
-				data.verificar = true;
-				data.text = "El "+ data.autor +" hizo centro";
-				data.autor = "Loteria";
-				io.sockets.in(socket.room).emit('messages',data);
+				jugada.push({userName:data.autor,jugada:"Centro",valido:true});
+				io.sockets.in(socket.room).emit('jugada',jugada[0]);
 				break;
 			}
 		}
-		if(data.verificar != true){
-			data.text = "El "+ data.autor +" la cago";
-			data.autor = "Loteria";
-			io.sockets.in(socket.room).emit('messages',data);
+		if(bandera != true){
+			jugada.push({userName:data.autor,jugada:"Centro",valido:false});
+			io.sockets.in(socket.room).emit('jugada',jugada[0]);
 		}
 	});
 
 	socket.on('prueba',function(pay){
 		var idSala = Sala(socket.room);
-		setInterval(intervalFunc,1500,pay,idSala);
+		rooms[idSala].inter = setInterval(intervalFunc,1500,pay,idSala);
+		
 	});
 
 	function intervalFunc(pay,idSala){
-		if(rooms[idSala].numerosBaraja.length <= 54){
+		if(rooms[idSala].numerosBaraja.length < 54){
 			var number = randomGenerate(idSala);
 			rooms[idSala].numerosBaraja.push(number);
 			pay.text = number;
@@ -165,14 +167,20 @@ io.on('connection',function(socket){
 			//setInterval(intervalFunc(pay), 1500);
 		}else
 		{
+			console.log("Hemos terminado");
+			var GameOver = [{
+				GameOver: true
+			}]
 			//PARA PARAR EL INTERVALO
-			clearInterval();
+			rooms[idSala].numerosBaraja = [];
+			io.sockets.in(rooms[idSala].nombreSala).emit('GameOver',GameOver);
+			clearInterval(rooms[idSala].inter);
 		}
 	}
 
 	function randomGenerate(idSala){
 		var randomizar = true;
-		if(rooms[idSala].numerosBaraja.length <= 54){
+		if(rooms[idSala].numerosBaraja.length <54){
 
 		
 			if(rooms[idSala].numerosBaraja.length>0){
@@ -204,11 +212,13 @@ io.on('connection',function(socket){
 	  
 
 	socket.on('verificarEsquinas',function(data,vectores,cartasDestapadas){
+		var idSala = Sala(socket.room);
+		var jugada = [];
 		var esquinas = [false,false,false,false];
 		var bandera = false;
 		for (var i=0; i<vectores.length;i++) {
-			for(var j=0;j<cartasDestapadas.length;j++){
-				if(vectores[i] == cartasDestapadas[j]){
+			for(var j=0;j<rooms[idSala].numerosBaraja.length;j++){
+				if(vectores[i] == rooms[idSala].numerosBaraja[j]){
 					esquinas[i] = true;
 					//console.log(vectores[i][j] + " "+ cartasDestapadas[k]);
 					break;
@@ -227,28 +237,28 @@ io.on('connection',function(socket){
 				
 			}
 			if(bandera){
-				data.verificar = true;
-				data.text = "El "+ data.autor +" hizo esquinas";
-				data.autor = "Loteria";
-				io.sockets.in(socket.room).emit('messages',data);
+				jugada.push({userName:data.autor,jugada:"Esquinas",valido:true});
+				io.sockets.in(socket.room).emit('jugada',jugada);
 				break;
 			}
 		}
-		if(data.verificar != true){
-			data.text = "El "+ data.autor +" la cago";
-			data.autor = "Loteria";
-			io.sockets.in(socket.room).emit('messages',data);
+		if(bandera != true){
+			jugada.push({userName:data.autor,jugada:"Esquinas",valido:false});
+			io.sockets.in(socket.room).emit('jugada',jugada);
 		}
 	});
 
 	socket.on('verificarChorro',function(data,vectores,cartasDestapadas){
+		var idSala = Sala(socket.room);
+		var jugada = [];
+
 		var chorro = [false,false,false,false];
 		var bandera = false;
 		for (var i=0; i<vectores.length; i++){
-			console.log(vectores[i]);
+			//console.log(vectores[i]);
 			for (var j=0; j<vectores[i].length; j++){
-				for(var k=0;k<cartasDestapadas.length;k++){
-					if(vectores[i][j] == cartasDestapadas[k]){
+				for(var k=0;k<rooms[idSala].numerosBaraja.length;k++){
+					if(vectores[i][j] == rooms[idSala].numerosBaraja[k]){
 						chorro[j] = true;
 						//console.log(vectores[i][j] + " "+ cartasDestapadas[k]);
 						break;
@@ -259,7 +269,7 @@ io.on('connection',function(socket){
 			}
 			for (var j=0; j<vectores[i].length;j++){
 				if(chorro[j]){
-					console.log(chorro[j] + " "+ j + " " +i);
+					//console.log(chorro[j] + " "+ j + " " +i);
 					bandera = true;
 				}else{
 					bandera = false;
@@ -268,17 +278,14 @@ io.on('connection',function(socket){
 				
 			}
 			if(bandera){
-				data.verificar = true;
-				data.text = "El "+ data.autor +" hizo chorro";
-				data.autor = "Loteria";
-				io.sockets.in(socket.room.nombreSala).emit('messages',data);
+				jugada.push({userName:data.autor,jugada:"Chorro",valido:false});
+				io.sockets.in(socket.room).emit('jugada',jugada);
 				break;
 			}
 		}
-		if(data.verificar != true){
-			data.text = "El "+ data.autor +" la cago";
-			data.autor = "Loteria";
-			io.sockets.in(socket.room.nombreSala).emit('messages',data);
+		if(bandera != true){
+			jugada.push({userName:data.autor,jugada:"Chorro",valido:false});
+			io.sockets.in(socket.room).emit('jugada',jugada);
 		}
 	});
 
