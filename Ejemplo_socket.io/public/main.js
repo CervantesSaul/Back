@@ -10,6 +10,10 @@ socket.on('messages', function(data){
 	render(data);
 });
 
+function Desconectar(){
+	socket.emit('disconnect');
+}
+
 function random(){
 	var payload={
 		autor:document.getElementById('username').value,

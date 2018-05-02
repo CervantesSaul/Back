@@ -74,6 +74,15 @@ io.on('connection',function(socket){
 		socket.broadcast.to(rooms[len-1].nombreSala).emit('messages',{autor:'Loteria',text: username +' se ha unido a la sala'});
 	});
 
+	// Cuando un usuario se desconecta
+	socket.on('disconnect', function(){
+		//socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
+		console.log("ENTRO");
+		console.log("AQUIIIIIIIIIII " + socket.room);
+		socket.broadcast.to(socket.room).emit('messages',{autor:'Loteria',text: socket.username +' ha abandonado la sala'});
+		socket.leave(socket.room);
+	});
+
 
 	socket.on('verificarLlenas',function(data,vectores,cartasDestapadas){
 
