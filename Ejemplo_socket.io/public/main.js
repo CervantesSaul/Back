@@ -11,7 +11,7 @@ socket.on('messages', function(data){
 });
 
 function Desconectar(){
-	socket.emit('disconnect');
+	socket.emit('desconectar');
 }
 
 function random(){
