@@ -147,7 +147,7 @@ io.on('connection',function(socket){
 			}
 		}
 		if(bandera != true){
-			jugada.push({userName:data.autor,jugada:"Centro",valido:true});
+			jugada.push({userName:data.autor,jugada:"Centro",valido:false});
 			io.sockets.in(socket.room).emit('jugada',jugada);
 		}
 	});
