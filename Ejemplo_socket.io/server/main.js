@@ -112,6 +112,16 @@ io.on('connection',function(socket){
 			if(bandera){
 				jugada.push({userName:data.autor,jugada:"Llenas",valido:true});
 				io.sockets.in(socket.room).emit('jugada',jugada);
+
+				//PARA TERMINAR LA PARTIDA
+				console.log("Hemos terminado");
+				var GameOver = [{
+					GameOver: true
+				}]
+				//PARA PARAR EL INTERVALO
+				rooms[idSala].numerosBaraja = [];
+				io.sockets.in(rooms[idSala].nombreSala).emit('GameOver',GameOver);
+
 				break;
 			}
 		}
