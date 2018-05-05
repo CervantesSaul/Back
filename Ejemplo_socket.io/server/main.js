@@ -75,6 +75,10 @@ io.on('connection',function(socket){
 		socket.broadcast.to(rooms[len-1].nombreSala).emit('messages',{autor:'Loteria',text: username +' se ha unido a la sala'});
 	});
 
+	function IniciarPArtida (){
+		var interval = setInterval('');
+	}
+
 	socket.on('Salas',function(){
 		var salas = new Array();
 		for(var i = 0; i< rooms.length;i++){
@@ -86,8 +90,10 @@ io.on('connection',function(socket){
 
 	// Cuando un usuario se desconecta
 	socket.on('desconectar', function(){
+		var idSala = Sala(socket.room);
 		socket.broadcast.to(socket.room).emit('messages',{autor:'Loteria',text: socket.username +' ha abandonado la sala'});
 		socket.leave(socket.room);
+		rooms[idSala].numJugadores--;
 		socket.room = "";
 	});
 

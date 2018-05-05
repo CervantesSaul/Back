@@ -23,6 +23,15 @@ function random(){
 	socket.emit('prueba',payload);
 }
 
+function salas(){
+	var payload={
+		autor:document.getElementById('username').value,
+		text:document.getElementById('texto').value,
+		verificar: false
+	};
+	socket.emit('Salas');
+}
+
 function validarChorro(){
 	var chorro = new Array();
 
@@ -116,6 +125,10 @@ function addMessage(e){
 }
 
 socket.on('connectToRoom',function(data) {
+    console.log(data);
+});
+
+socket.on('SalasInf',function(data) {
     console.log(data);
 });
 
