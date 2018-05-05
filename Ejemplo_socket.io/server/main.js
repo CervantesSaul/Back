@@ -47,7 +47,7 @@ io.on('connection',function(socket){
 		for( var i=0; i<rooms.length;i++ ){
 			if(rooms[i].nombreSala == nombreSala){
 				salaExiste = true;
-				var len = i+1;
+				len = i+1;
 				break;
 			}else{
 				salaExiste =false;
@@ -55,13 +55,14 @@ io.on('connection',function(socket){
 		}
 		
 		if(salaExiste){
-			
+			rooms[len-1].numJugadores ++;
+			rooms[len-1].estado = "Listo para Jugar"
 		}else{
 			/*var rom = room;
 			rom.nombreSala = nombreSala;
 			rom.numerosBaraja = new Array();*/
 
-			rooms.push({nombreSala:nombreSala, numerosBaraja: [],inter:null});
+			rooms.push({nombreSala:nombreSala, numerosBaraja: [],numJugadores: 1,estado: "Esperando Jugadores",inter:null});
 			len = rooms.length;
 		}
 		
@@ -74,6 +75,15 @@ io.on('connection',function(socket){
 		socket.broadcast.to(rooms[len-1].nombreSala).emit('messages',{autor:'Loteria',text: username +' se ha unido a la sala'});
 	});
 
+	socket.on('Salas',function(){
+		var salas = new Array();
+		for(var i = 0; i< rooms.length;i++){
+			salas.push({nombreSala:rooms[i].nombreSala,numJugadores: rooms[i].numJugadores,Estado:rooms[i].estado})
+		}
+		console.log(salas);
+		socket.emit('SalasInf',salas);
+	});
+
 	// Cuando un usuario se desconecta
 	socket.on('desconectar', function(){
 		socket.broadcast.to(socket.room).emit('messages',{autor:'Loteria',text: socket.username +' ha abandonado la sala'});
@@ -82,7 +92,7 @@ io.on('connection',function(socket){
 	});
 
 
-	socket.on('verificarLlenas',function(data,vectores,cartasDestapadas){
+	socket.on('verificarLlenas',function(data,vectores){
 
 		var idSala = Sala(socket.room);
 		var jugada = [];
@@ -131,7 +141,7 @@ io.on('connection',function(socket){
 		}
 	});
 
-	socket.on('verificarCentro',function(data,vectores,cartasDestapadas){
+	socket.on('verificarCentro',function(data,vectores){
 		var idSala = Sala(socket.room);
 		var jugada = [];
 
@@ -171,7 +181,7 @@ io.on('connection',function(socket){
 
 	socket.on('prueba',function(pay){
 		var idSala = Sala(socket.room);
-		rooms[idSala].inter = setInterval(intervalFunc,1500,pay,idSala);
+		rooms[idSala].inter = setInterval(intervalFunc,2000,pay,idSala);
 		
 	});
 
@@ -228,7 +238,7 @@ io.on('connection',function(socket){
 	}
 	  
 
-	socket.on('verificarEsquinas',function(data,vectores,cartasDestapadas){
+	socket.on('verificarEsquinas',function(data,vectores){
 		var idSala = Sala(socket.room);
 		var jugada = [];
 		var esquinas = [false,false,false,false];
@@ -265,7 +275,7 @@ io.on('connection',function(socket){
 		}
 	});
 
-	socket.on('verificarChorro',function(data,vectores,cartasDestapadas){
+	socket.on('verificarChorro',function(data,vectores){
 		var idSala = Sala(socket.room);
 		var jugada = [];
 
