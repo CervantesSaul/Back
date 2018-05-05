@@ -81,7 +81,7 @@ io.on('connection',function(socket){
 			salas.push({nombreSala:rooms[i].nombreSala,numJugadores: rooms[i].numJugadores,Estado:rooms[i].estado})
 		}
 		console.log(salas);
-		socket.emit('SalasInf',salas);
+		io.sockets.emit('SalasInf',salas);
 	});
 
 	// Cuando un usuario se desconecta
