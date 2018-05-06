@@ -64,7 +64,7 @@ io.on('connection',function(socket){
 			rom.nombreSala = nombreSala;
 			rom.numerosBaraja = new Array();*/
 
-			rooms.push({nombreSala:nombreSala, numerosBaraja: [],numJugadores: 1,estado: "Esperando Jugadores",inter:null,intervalIniciar:null,intervalEspera:null,intervalTerminada:null,intervalReiniciar:null,contarEspera:0,contarTerminada:0,contarReiniciar:0});
+			rooms.push({nombreSala:nombreSala, numerosBaraja: [],numJugadores: 1,estado: "Esperando Jugadores",inter:null,intervalSalas:null,intervalIniciar:null,intervalEspera:null,intervalTerminada:null,intervalReiniciar:null,contarEspera:0,contarTerminada:0,contarReiniciar:0});
 			len = rooms.length;
 		}
 		
@@ -151,12 +151,17 @@ io.on('connection',function(socket){
 	}
 
 	socket.on('Salas',function(){
+		var idSala = Sala(socket.room);
+		rooms[idSala].intervalSalas = setInterval(salas,1000);
+	});
+
+	function salas(){
 		var salas = new Array();
 		for(var i = 0; i< rooms.length;i++){
 			salas.push({nombreSala:rooms[i].nombreSala,numJugadores: rooms[i].numJugadores,Estado:rooms[i].estado})
 		}
 		io.sockets.emit('SalasInf',salas);
-	});
+	}
 
 	// Cuando un usuario se desconecta
 	socket.on('desconectar', function(){
