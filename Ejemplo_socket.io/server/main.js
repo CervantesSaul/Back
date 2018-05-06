@@ -34,7 +34,12 @@ io.on('connection',function(socket){
 	});
 	
 	//CONFIGURACION DE LAS SALAS
-   	//Cuando el cliente emita 'adduser', escucha y ejecuta
+	   //Cuando el cliente emita 'adduser', escucha y ejecuta
+	   
+	socket.on('ConexionEscuchar',function(nombreSala){
+		socket.join(nombreSala);
+	});
+
 	socket.on('adduser', function(username, nombreSala){
 		var salaExiste = false;
 		//Guarda username en la sesion del socket para cada cliente
