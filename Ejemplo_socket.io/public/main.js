@@ -14,6 +14,10 @@ function Desconectar(){
 	socket.emit('desconectar');
 }
 
+function Jugar(){
+	socket.emit('Estado');
+}
+
 function random(){
 	var payload={
 		autor:document.getElementById('username').value,
@@ -133,6 +137,14 @@ socket.on('SalasInf',function(data) {
 });
 
 socket.on('numerosBaraja',function(numeroBaraja) {
+	console.log(numeroBaraja);
+});
+
+socket.on('EstadoPartida',function(numeroBaraja) {
+	console.log(numeroBaraja);
+});
+
+socket.on('Conteo',function(numeroBaraja) {
 	console.log(numeroBaraja);
 });
 

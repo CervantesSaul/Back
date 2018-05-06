@@ -56,13 +56,15 @@ io.on('connection',function(socket){
 		
 		if(salaExiste){
 			rooms[len-1].numJugadores ++;
-			rooms[len-1].estado = "Listo para Jugar"
+			if(rooms[len-1].numJugadores==2){
+			rooms[len-1].estado = "Listo para Jugar";
+			}
 		}else{
 			/*var rom = room;
 			rom.nombreSala = nombreSala;
 			rom.numerosBaraja = new Array();*/
 
-			rooms.push({nombreSala:nombreSala, numerosBaraja: [],numJugadores: 1,estado: "Esperando Jugadores",inter:null});
+			rooms.push({nombreSala:nombreSala, numerosBaraja: [],numJugadores: 1,estado: "Esperando Jugadores",inter:null,intervalIniciar:null,intervalEspera:null,intervalTerminada:null,intervalReiniciar:null,contarEspera:0,contarTerminada:0,contarReiniciar:0});
 			len = rooms.length;
 		}
 		
@@ -75,8 +77,77 @@ io.on('connection',function(socket){
 		socket.broadcast.to(rooms[len-1].nombreSala).emit('messages',{autor:'Loteria',text: username +' se ha unido a la sala'});
 	});
 
-	function IniciarPArtida (){
-		var interval = setInterval('');
+	socket.on('Estado',function IniciarPartida (){
+		var idSala = Sala(socket.room);
+		io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Esperando Jugadores");
+		rooms[idSala].intervalIniciar = setInterval(EstadoJugada,1000,idSala);
+	});
+
+	function Listo(idSala){
+		rooms[idSala].intervalEspera = setInterval(conteoEspera,1000,idSala);
+	}
+
+	function Jugando(idSala){
+		rooms[idSala].inter = setInterval(intervalFunc,2000,idSala);
+	}
+
+	function PartidaTerminada(idSala){
+		rooms[idSala].intervalTerminada = setInterval(conteoTerminada,2000,idSala);
+	}
+
+	function EstadoJugada(idSala){
+		var idSala = Sala(socket.room);
+		if(rooms[idSala].estado=="Listo para Jugar"){
+			io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Listo para Jugar");
+			Listo(idSala);
+			clearInterval(rooms[idSala].intervalIniciar);
+		}
+	}
+
+	function ReiniciarPartida(idSala){
+		rooms[idSala].numerosBaraja = [];
+		rooms[idSala].intervalReiniciar = setInterval(conteoReiniciar,2000,idSala);
+	}
+
+	function conteoReiniciar(idSala){
+		if(rooms[idSala].contarReiniciar<20){
+			rooms[idSala].contarReiniciar ++;
+			io.sockets.in(rooms[idSala].nombreSala).emit('Conteo',rooms[idSala].contarReiniciar);
+			//io.sockets.in(rooms[idSala].nombreSala).emit('Conteo',rooms[idSala].contarEspera);
+		}else{
+			rooms[idSala].contarReiniciar = 0;
+			io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Jugando");
+			Jugando(idSala);
+			clearInterval(rooms[idSala].intervalReiniciar);
+		}
+	}
+
+	function conteoEspera(idSala){
+		if(rooms[idSala].contarEspera<30){
+			rooms[idSala].contarEspera ++;
+			
+			io.sockets.in(rooms[idSala].nombreSala).emit('Conteo',rooms[idSala].contarEspera);
+		}else{
+			rooms[idSala].numerosBaraja = [];
+			rooms[idSala].estado = "Jugando";
+			io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Jugando");
+			Jugando(idSala);
+			clearInterval(rooms[idSala].intervalEspera);
+		}
+	}
+
+	function conteoTerminada(idSala){
+		if(rooms[idSala].contarTerminada<10){
+			rooms[idSala].contarTerminada ++;
+			
+			io.sockets.in(rooms[idSala].nombreSala).emit('Conteo',rooms[idSala].contarTerminada);
+		}else{
+			rooms[idSala].contarReiniciar = 0;
+			rooms[idSala].estado = "Iniciando Partida";
+			io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Iniciando Partida");
+			ReiniciarPartida(idSala);
+			clearInterval(rooms[idSala].intervalTerminada);
+		}
 	}
 
 	socket.on('Salas',function(){
@@ -84,7 +155,6 @@ io.on('connection',function(socket){
 		for(var i = 0; i< rooms.length;i++){
 			salas.push({nombreSala:rooms[i].nombreSala,numJugadores: rooms[i].numJugadores,Estado:rooms[i].estado})
 		}
-		console.log(salas);
 		io.sockets.emit('SalasInf',salas);
 	});
 
@@ -130,13 +200,20 @@ io.on('connection',function(socket){
 				io.sockets.in(socket.room).emit('jugada',jugada);
 
 				//PARA TERMINAR LA PARTIDA
+				
 				console.log("Hemos terminado");
 				var GameOver = [{
 					GameOver: true
 				}]
 				//PARA PARAR EL INTERVALO
 				rooms[idSala].numerosBaraja = [];
+
+				rooms[idSala].contarTerminada = 0;
+				rooms[idSala].estado = "Partida Terminada";
+				io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Partida Terminada");
+				PartidaTerminada(idSala);
 				io.sockets.in(rooms[idSala].nombreSala).emit('GameOver',GameOver);
+				clearInterval(rooms[idSala].inter);
 
 				break;
 			}
@@ -185,17 +262,17 @@ io.on('connection',function(socket){
 		}
 	});
 
-	socket.on('prueba',function(pay){
+	socket.on('prueba',function(){
 		var idSala = Sala(socket.room);
-		rooms[idSala].inter = setInterval(intervalFunc,2000,pay,idSala);
+		rooms[idSala].inter = setInterval(intervalFunc,2000,idSala);
 		
 	});
 
-	function intervalFunc(pay,idSala){
+	function intervalFunc(idSala){
 		if(rooms[idSala].numerosBaraja.length < 54){
 			var number = randomGenerate(idSala);
 			rooms[idSala].numerosBaraja.push(number);
-			pay.text = number;
+			//pay.text = number;
 			io.sockets.in(rooms[idSala].nombreSala).emit('numerosBaraja',number);
 			//setInterval(intervalFunc(pay), 1500);
 		}else
@@ -205,7 +282,10 @@ io.on('connection',function(socket){
 				GameOver: true
 			}]
 			//PARA PARAR EL INTERVALO
-			rooms[idSala].numerosBaraja = [];
+			rooms[idSala].contarTerminada = 0;
+			rooms[idSala].estado = "Partida Terminada";
+			io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Partida Terminada");
+			PartidaTerminada(idSala);
 			io.sockets.in(rooms[idSala].nombreSala).emit('GameOver',GameOver);
 			clearInterval(rooms[idSala].inter);
 		}
