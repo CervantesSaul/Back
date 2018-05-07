@@ -101,7 +101,7 @@ io.on('connection',function(socket){
 	}
 
 	function EstadoJugada(idSala){
-		var idSala = Sala(socket.room);
+		//var idSala = Sala(socket.room);
 		if(rooms[idSala].estado=="Listo para Jugar"){
 			io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Listo para Jugar");
 			Listo(idSala);
