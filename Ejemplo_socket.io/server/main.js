@@ -37,6 +37,7 @@ io.on('connection',function(socket){
 	   //Cuando el cliente emita 'adduser', escucha y ejecuta
 	   
 	socket.on('ConexionEscuchar',function(nombreSala){
+		socket.room = nombreSala;
 		socket.join(nombreSala);
 	});
 
@@ -182,11 +183,11 @@ io.on('connection',function(socket){
 
 		var idSala = Sala(socket.room);
 		var jugada = [];
-
 		var centro = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
 		var bandera = false;
 		for (var i=0; i<vectores.length;i++) {
 			for(var j=0;j<rooms[idSala].numerosBaraja.length;j++){
+				
 				if(vectores[i] == rooms[idSala].numerosBaraja[j]){
 					centro[i] = true;
 					//console.log(vectores[i] + " "+ cartasDestapadas[j]);
@@ -237,7 +238,6 @@ io.on('connection',function(socket){
 	socket.on('verificarCentro',function(data,vectores){
 		var idSala = Sala(socket.room);
 		var jugada = [];
-
 		var centro = [false,false,false,false];
 		var bandera = false;
 		for (var i=0; i<vectores.length;i++) {
@@ -374,7 +374,6 @@ io.on('connection',function(socket){
 	socket.on('verificarChorro',function(data,vectores){
 		var idSala = Sala(socket.room);
 		var jugada = [];
-
 		var chorro = [false,false,false,false];
 		var bandera = false;
 		for (var i=0; i<vectores.length; i++){
