@@ -178,8 +178,8 @@ io.on('connection',function(socket){
 
 	socket.on('Salas',function(){
 		var idSala = Sala(socket.room);
-		salas();
-		//rooms[idSala].intervalSalas = setInterval(salas,1000);
+		//salas();
+		rooms[idSala].intervalSalas = setInterval(salas,1000);
 	});
 
 	function salas(){
