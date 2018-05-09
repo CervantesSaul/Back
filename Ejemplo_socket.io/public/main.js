@@ -10,8 +10,20 @@ socket.on('messages', function(data){
 	render(data);
 });
 
+socket.on('CartasSeleccionadas',function(data){
+	console.log(data);
+});
+
 function Desconectar(){
 	socket.emit('desconectar');
+}
+
+function AgregarCartaSelect(){
+	socket.emit('AgregarCartaSelect',2,"2");
+}
+
+function RetornarCartas(){
+	socket.emit('RetornarCartasSelect',"2");
 }
 
 function Jugar(){

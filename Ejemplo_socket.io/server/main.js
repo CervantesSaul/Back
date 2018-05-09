@@ -185,7 +185,7 @@ io.on('connection',function(socket){
 	function salas(){
 		var salas = new Array();
 		for(var i = 0; i< rooms.length;i++){
-			salas.push({nombreSala:rooms[i].nombreSala,numJugadores: rooms[i].numJugadores,Estado:rooms[i].estado})
+			salas.push({nombreSala:rooms[i].nombreSala,cartasSelect:rooms[i].cartasSelect,numJugadores: rooms[i].numJugadores,Estado:rooms[i].estado})
 		}
 		io.sockets.emit('SalasInf',salas);
 	}
