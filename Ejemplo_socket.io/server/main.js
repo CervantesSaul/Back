@@ -89,6 +89,12 @@ io.on('connection',function(socket){
 
 	});
 
+	socket.on('EliminarCartaSelect',function(idCarta,nombreSala){
+		var idSala = Sala(nombreSala);
+		rooms[idSala].cartasSelect[idCarta] = 0;
+		//console.log(rooms[idSala].cartasSelect);
+	});
+
 	socket.on('RetornarCartasSelect',function(nombreSala){
 		var idSala = Sala(nombreSala);
 		io.sockets.in(nombreSala).emit('CartasSeleccionadas',rooms[idSala].cartasSelect);
