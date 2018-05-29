@@ -63,7 +63,9 @@
 			}
 			
 			if(salaExiste){
-				rooms[len-1].numJugadores ++;
+				if(nombreSala!=""){
+					rooms[len-1].numJugadores ++;
+				}
 				if(rooms[len-1].numJugadores==2){
 				rooms[len-1].estado = "Listo para Jugar";
 				}
@@ -208,6 +210,13 @@
 			socket.leave(socket.room);
 			rooms[idSala].numJugadores--;
 			socket.room = "";
+			if(rooms[idSala].numJugadores <2){
+				laLimpiaIntervals();
+				rooms[idSala].estado = "Esperando Jugadores";
+				io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Partida Terminada");
+				io.sockets.in(rooms[idSala].nombreSala).emit('EstadoPartida',"Esperando Jugadores");
+				rooms[idSala].intervalIniciar = setInterval(EstadoJugada,1000,idSala);
+			}
 		});
 	
 	
